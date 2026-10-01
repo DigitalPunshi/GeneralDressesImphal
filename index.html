@@ -426,9 +426,31 @@
         let GSTIN = "14BALPD0452MIZU";
         let BANK_DETAILS = "Payee Name: M/S General Dresses Account\nNo.: 31859934262\nIFSC: SBIN0000092";
         
-        let UPI_ID = ""; 
-        let PAYEE_NAME = "General Dresses";
-        let OWNER_PIN = "1234"; // Default fallback
+        let STAFF_USER = "admin";
+        let STAFF_PASS = "1234"; 
+
+        function checkLogin() {
+            const user = document.getElementById('login-user').value.trim();
+            const pass = document.getElementById('login-pass').value.trim();
+            const err = document.getElementById('login-error');
+            if(user === STAFF_USER && pass === STAFF_PASS) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('customer-view').classList.remove('hidden');
+                // Set default month in search modal to current month
+                document.getElementById('s-order-month').value = `${currentYear}-${currentMonth}`;
+            } else {
+                err.style.opacity = '1';
+                setTimeout(() => err.style.opacity = '0', 2000);
+            }
+        }
+
+        function calculateBalance() {
+            const { total } = getCartTotal();
+            let advance = parseFloat(document.getElementById('advance-payment').value) || 0;
+            if (advance > total) { advance = total; document.getElementById('advance-payment').value = total; }
+            let balance = total - advance;
+            document.getElementById('balance-due').innerText = `₹ ${balance.toFixed(2)}`;
+        }
         
         let menuData = [];
         let cart = {};
