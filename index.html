@@ -702,6 +702,18 @@
             showToast("Item added to cart");
         }
 
+        function incrementQuantity(itemId) {
+            if (cart[itemId]) {
+                cart[itemId].quantity += 1;
+            } else {
+                let itemData = null;
+                menuData.forEach(cat => { const found = cat.items.find(i => i.id === itemId); if(found) itemData = found; });
+                if (itemData) cart[itemId] = { ...itemData, quantity: 1 };
+            }
+            updateUI();
+            showToast("Item added to cart");
+        }
+
         // Setting absolute values from typing inside the Cart View
         function setQuantity(itemId, val) {
             let num = parseInt(val) || 0;
