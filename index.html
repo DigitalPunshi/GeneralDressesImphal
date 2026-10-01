@@ -968,11 +968,6 @@
             statusMsg.classList.add('hidden');
             document.getElementById('s-preview-section').classList.add('hidden');
             fetchBtn.innerHTML = `Searching...`; fetchBtn.disabled = true;
-            }
-
-            statusMsg.classList.add('hidden');
-            document.getElementById('s-preview-section').classList.add('hidden');
-            fetchBtn.innerHTML = `Searching...`; fetchBtn.disabled = true;
 
             fetch(`${GOOGLE_SCRIPT_URL}?orderId=${orderId}`)
                 .then(response => response.json())
