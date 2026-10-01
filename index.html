@@ -441,6 +441,7 @@
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyc-1d91l5ZidJg-L2or6bJdkwW7ohB2jqu95J-rHPCe8a3uD2gJe2I2dJtxSbKqqUi/exec";
 
         // Emptied Config Variables - strictly fetched from backend sheet to keep info private
+        // Emptied Config Variables - strictly fetched from backend sheet to keep info private
         let STORE_NAME = "General Dresses";
         let STORE_ADDRESS = "";
         let REGD_NO = "";
@@ -464,6 +465,17 @@
                 setTimeout(() => err.style.opacity = '0', 2000);
                 return;
             }
+
+            if(user === STAFF_USER && pass === STAFF_PASS) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('customer-view').classList.remove('hidden');
+                document.getElementById('s-order-month').value = `${currentYear}-${currentMonth}`;
+            } else {
+                err.innerText = "Invalid credentials";
+                err.style.opacity = '1';
+                setTimeout(() => err.style.opacity = '0', 2000);
+            }
+        }
 
             if(user === STAFF_USER && pass === STAFF_PASS) {
                 document.getElementById('login-screen').classList.add('hidden');
