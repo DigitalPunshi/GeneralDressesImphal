@@ -937,16 +937,20 @@
         let currentSearchedOrder = null;
 
         function fetchOrderDetails() {
-            let orderId = document.getElementById('s-order-id').value.trim();
+            const monthVal = document.getElementById('s-order-month').value; // Returns YYYY-MM
+            const seqVal = document.getElementById('s-order-seq').value.trim();
             const statusMsg = document.getElementById('s-status-msg');
             const fetchBtn = document.getElementById('s-fetch-btn');
 
-            if (!orderId) { statusMsg.innerText = "Enter Order ID."; statusMsg.classList.remove('hidden'); return; }
+            if (!monthVal || !seqVal) { statusMsg.innerText = "Select month and enter 4 digits."; statusMsg.classList.remove('hidden'); return; }
 
-            // Auto-format prefix if user just enters number
-            if (!orderId.toUpperCase().startsWith("GD-")) {
-                orderId = `GD-${currentYear}-${currentMonth}-${currentDay}-${orderId.padStart(3, '0')}`;
-                document.getElementById('s-order-id').value = orderId;
+            const [yr, mo] = monthVal.split('-');
+            const formattedSeq = seqVal.padStart(4, '0');
+            const orderId = `GD/${yr}/${mo}/${formattedSeq}`;
+
+            statusMsg.classList.add('hidden');
+            document.getElementById('s-preview-section').classList.add('hidden');
+            fetchBtn.innerHTML = `Searching...`; fetchBtn.disabled = true;
             }
 
             statusMsg.classList.add('hidden');
