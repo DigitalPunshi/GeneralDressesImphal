@@ -8,7 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -29,6 +28,8 @@
         html { scroll-behavior: smooth; }
         body { -webkit-tap-highlight-color: transparent; }
         .hidden-section { display: none !important; }
+        
+        /* Hide arrows on number inputs */
         input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type="number"] { -moz-appearance: textfield; }
 
@@ -56,30 +57,26 @@
 
     <main class="max-w-md md:max-w-3xl lg:max-w-5xl mx-auto bg-gray-50 min-h-screen shadow-2xl relative pb-24 transition-all duration-300">
         
-        <!-- ========================================== -->
-        <!-- LOGIN SCREEN                               -->
-        <!-- ========================================== -->
+        <!-- LOGIN SCREEN -->
         <div id="login-screen" class="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-6 absolute inset-0 z-50">
             <div class="bg-white rounded-3xl shadow-xl w-full max-w-sm p-8 text-center border border-gray-100">
                 <div class="w-16 h-16 bg-brand-light text-brand rounded-full flex items-center justify-center mx-auto mb-4">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                 </div>
                 <h2 class="text-2xl font-black text-brand mb-1">Staff Login</h2>
-                <p class="text-xs text-gray-500 mb-6">General Dresses POS System</p>
+                <p id="login-status-text" class="text-xs text-gray-500 mb-6 font-bold">Syncing Database...</p>
                 
                 <input type="text" id="login-user" placeholder="Username" class="w-full px-4 py-3 mb-3 border border-gray-300 rounded-xl focus:ring-brand focus:border-brand outline-none text-left bg-gray-50">
                 <input type="password" id="login-pass" placeholder="Password" class="w-full px-4 py-3 mb-6 border border-gray-300 rounded-xl focus:ring-brand focus:border-brand outline-none text-left bg-gray-50" onkeypress="if(event.key === 'Enter') checkLogin()">
                 
-                <button onclick="checkLogin()" class="w-full bg-brand hover:bg-brand-dark text-white py-4 rounded-xl font-bold text-lg shadow-md transition-colors">
-                    Login to POS
+                <button id="login-btn" onclick="checkLogin()" disabled class="w-full bg-gray-300 text-white py-4 rounded-xl font-bold text-lg shadow-md transition-colors cursor-not-allowed">
+                    Wait for Sync...
                 </button>
                 <p id="login-error" class="text-red-600 text-sm font-bold mt-4 opacity-0 transition-opacity">Invalid credentials</p>
             </div>
         </div>
 
-        <!-- ========================================== -->
-        <!-- POS VIEW (Menu & Cart)                     -->
-        <!-- ========================================== -->
+        <!-- POS VIEW -->
         <div id="customer-view" class="hidden">
             <header class="bg-white px-6 py-5 text-center shadow-sm sticky top-0 z-40 relative">
                 <!-- Hamburger Menu Top Left -->
@@ -90,16 +87,13 @@
                 <!-- Dropdown for Hamburger -->
                 <div id="hamburger-dropdown" class="hidden absolute left-6 top-16 bg-white shadow-xl rounded-xl border border-gray-100 flex-col w-56 overflow-hidden z-50 text-left animate-slide-up">
                     <button onclick="openSearchOrder()" class="px-4 py-3 text-sm font-bold text-gray-700 hover:bg-gray-50 border-b border-gray-100 w-full text-left flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                        1. Search Order & Print
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg> Search Order & Print
                     </button>
                     <button onclick="openAnalytics()" class="px-4 py-3 text-sm font-bold text-gray-700 hover:bg-gray-50 border-b border-gray-100 w-full text-left flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                        2. Owner Analytics
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg> Owner Analytics
                     </button>
                     <button onclick="openDemandAnalytics()" class="px-4 py-3 text-sm font-bold text-gray-700 hover:bg-gray-50 w-full text-left flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                        3. Demand Analytics
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg> Demand Analytics
                     </button>
                 </div>
 
@@ -112,15 +106,15 @@
             </header>
 
             <!-- Live Search Bar -->
-            <div class="px-4 pt-4 pb-2 sticky top-[100px] z-30 bg-gray-50 border-b border-gray-200 shadow-sm">
+            <div class="px-4 pt-4 pb-2 sticky top-[100px] z-30 bg-gray-50 border-b border-gray-200 shadow-sm space-y-3">
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                     </div>
-                    <input type="text" id="menu-search" autocomplete="off" data-lpignore="true" oninput="filterMenu()" placeholder="Search products (Shirts, Pants, Suits)..." class="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-brand focus:border-brand outline-none shadow-sm text-gray-900 transition-all">
+                    <input type="text" id="menu-search" autocomplete="off" data-lpignore="true" oninput="filterMenu()" placeholder="Search products..." class="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-brand focus:border-brand outline-none shadow-sm text-gray-900 transition-all">
                 </div>
-            <!-- Custom Item Bar -->
-                <div class="bg-white p-3 mt-3 rounded-xl shadow-sm border border-brand/20 flex gap-2 items-end">
+                <!-- Custom Item Bar -->
+                <div class="bg-white p-3 rounded-xl shadow-sm border border-brand/20 flex gap-2 items-end">
                     <div class="flex-1">
                         <label class="text-[10px] uppercase font-bold text-gray-500">Custom Item</label>
                         <input type="text" id="custom-name" placeholder="Name" class="w-full border-b border-gray-300 py-1 outline-none focus:border-brand text-sm bg-transparent">
@@ -139,33 +133,31 @@
 
             <div id="menu-container" class="px-4 py-6 space-y-8"></div>
 
+            <!-- Bottom Cart Bar -->
             <div id="bottom-cart-bar" class="fixed bottom-0 w-full max-w-md md:max-w-3xl lg:max-w-5xl bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] p-4 flex justify-between items-center z-40 transform translate-y-full transition-transform duration-300">
                 <div class="flex flex-col">
                     <span class="text-xs text-gray-500 font-medium uppercase tracking-wider">Total Amount</span>
                     <span id="cart-total-bar" class="text-xl font-bold text-gray-900">₹ 0</span>
                 </div>
                 <button onclick="toggleCartModal()" class="bg-brand hover:bg-brand-dark text-white px-6 py-3 rounded-xl font-semibold shadow-md transition-colors flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
                     View Invoice (<span id="cart-count">0</span>)
                 </button>
             </div>
 
+            <!-- CART MODAL -->
             <div id="cart-modal" class="fixed inset-0 bg-gray-900/60 z-50 hidden flex-col justify-end max-w-md md:max-w-2xl mx-auto transition-all duration-300">
                 <div class="bg-white rounded-t-3xl w-full h-[90vh] flex flex-col animate-slide-up">
                     <div class="flex justify-between items-center p-5 border-b border-gray-100">
                         <h2 class="text-xl font-bold text-gray-900">Order Details</h2>
                         <button onclick="toggleCartModal()" class="p-2 bg-gray-100 rounded-full text-gray-600 hover:bg-gray-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                         </button>
                     </div>
+                    
                     <div id="cart-items-container" class="flex-1 overflow-y-auto p-5 space-y-4 transition-all"></div>
                     
                     <div class="p-5 pb-8 border-t border-gray-100 bg-gray-50 overflow-y-auto max-h-[60vh] flex-shrink-0 no-scrollbar">
-                        
                         <h3 class="text-md font-bold text-brand mb-3 uppercase tracking-wide">Customer Information</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
@@ -212,12 +204,9 @@
             </div>
         </div>
 
-        <!-- Custom Toast/Message Box -->
-        <div id="toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full text-sm font-medium shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none z-50">
-            Message
-        </div>
+        <div id="toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full text-sm font-medium shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none z-50">Message</div>
 
-        <!-- Search Order / Billing Portal Modal -->
+        <!-- SEARCH ORDER MODAL -->
         <div id="search-order-modal" class="fixed inset-0 bg-gray-900/80 z-50 hidden flex-col items-center justify-center p-4 overflow-y-auto">
             <div class="bg-white rounded-3xl shadow-xl w-full max-w-lg p-6 sm:p-8 relative my-auto animate-slide-up">
                 <button onclick="closeSearchOrder()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
@@ -264,7 +253,7 @@
                     <div class="flex gap-2">
                         <button onclick="printA4Invoice()" class="flex-1 bg-gray-900 hover:bg-gray-800 text-white py-3 rounded-xl font-bold shadow-md flex justify-center items-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                            Print PDF Invoice
+                            Print PDF
                         </button>
                         <button onclick="forwardWhatsApp()" id="s-wa-btn" class="flex-1 bg-[#25D366] hover:bg-[#128C7E] text-white py-3 rounded-xl font-bold shadow-md flex justify-center items-center gap-2">
                             WhatsApp
@@ -274,7 +263,7 @@
             </div>
         </div>
 
-        <!-- Owner Analytics Modal -->
+        <!-- OWNER ANALYTICS MODAL -->
         <div id="analytics-modal" class="fixed inset-0 bg-gray-900/80 z-50 hidden flex-col items-center justify-start sm:justify-center p-4 sm:p-6 overflow-y-auto pt-10">
             <div class="bg-white rounded-3xl shadow-xl w-full max-w-md p-6 sm:p-8 relative my-auto animate-slide-up">
                 <button onclick="closeAnalyticsModal()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 z-40"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
@@ -290,10 +279,8 @@
                 </div>
 
                 <div class="flex justify-between items-start mb-4 border-b pb-2 pr-6">
-                    <div>
-                        <h2 class="text-xl font-bold text-brand leading-none">Business Analytics</h2>
-                    </div>
-                    <button id="refresh-btn" onclick="refreshQuickStats()" title="Refresh Quick Stats" class="text-gray-500 hover:text-brand hover:bg-blue-50 p-1.5 rounded-full transition-colors shrink-0">
+                    <div><h2 class="text-xl font-bold text-brand leading-none">Business Analytics</h2></div>
+                    <button id="refresh-btn" onclick="refreshQuickStats()" class="text-gray-500 hover:text-brand hover:bg-blue-50 p-1.5 rounded-full transition-colors shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                     </button>
                 </div>
@@ -324,7 +311,7 @@
             </div>
         </div>
 
-        <!-- Demand Analytics Modal -->
+        <!-- DEMAND ANALYTICS MODAL -->
         <div id="demand-modal" class="fixed inset-0 bg-gray-900/80 z-50 hidden flex-col items-center justify-start p-4 sm:p-6 overflow-y-auto">
             <div class="bg-white rounded-3xl shadow-xl w-full max-w-lg p-6 sm:p-8 relative mt-10 mb-10 mx-auto animate-slide-up shrink-0">
                 <button onclick="closeDemandModal()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 z-40 bg-white rounded-full p-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
@@ -402,9 +389,7 @@
                         <th style="width: 15%;" class="text-right">Amount</th>
                     </tr>
                 </thead>
-                <tbody id="p-items-table">
-                    <!-- Injected rows -->
-                </tbody>
+                <tbody id="p-items-table"></tbody>
                 <tfoot>
                     <tr>
                         <th colspan="4" class="text-right" style="font-size: 14px;">Total Amount</th>
@@ -437,11 +422,10 @@
     </main>
 
     <script>
-        // The script URL handles storage for products, orders, and configuration.
+        // REPLACE WITH YOUR ACTUAL GOOGLE APPS SCRIPT URL
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyc-1d91l5ZidJg-L2or6bJdkwW7ohB2jqu95J-rHPCe8a3uD2gJe2I2dJtxSbKqqUi/exec";
 
-        // Emptied Config Variables - strictly fetched from backend sheet to keep info private
-        // Emptied Config Variables - strictly fetched from backend sheet to keep info private
+        // ALL Config Variables are empty and securely fetched from Google Sheets
         let STORE_NAME = "General Dresses";
         let STORE_ADDRESS = "";
         let REGD_NO = "";
@@ -453,6 +437,113 @@
         let OWNER_PIN = "";
         let UPI_ID = "";
         let PAYEE_NAME = "";
+
+        let menuData = [];
+        let cart = {};
+        
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        const currentMonth = ("0" + (today.getMonth() + 1)).slice(-2);
+        const currentDay = ("0" + today.getDate()).slice(-2);
+
+        function fetchMenu() {
+            const container = document.getElementById('menu-container');
+            
+            const cachedMenu = localStorage.getItem('gd_menu');
+            const cachedConfig = localStorage.getItem('gd_config');
+            let isCached = false;
+            
+            if (cachedMenu) {
+                try {
+                    menuData = JSON.parse(cachedMenu);
+                    if (cachedConfig) {
+                        const config = JSON.parse(cachedConfig);
+                        OWNER_PIN = config.ownerPin || OWNER_PIN;
+                        UPI_ID = config.upiId || UPI_ID;
+                        PAYEE_NAME = config.payeeName || PAYEE_NAME;
+                        STORE_NAME = config.storeName || STORE_NAME;
+                        STORE_ADDRESS = config.storeAddress || STORE_ADDRESS;
+                        REGD_NO = config.regdNo || REGD_NO;
+                        GSTIN = config.gstin || GSTIN;
+                        BANK_DETAILS = config.bankDetails || BANK_DETAILS;
+                        STAFF_USER = config.staffUser || STAFF_USER;
+                        STAFF_PASS = config.staffPass || STAFF_PASS;
+                        LOGO_URL = config.logoUrl || "";
+                    }
+                    
+                    document.getElementById('header-store-name').innerText = STORE_NAME;
+                    if (LOGO_URL) {
+                        document.getElementById('header-logo').src = LOGO_URL;
+                        document.getElementById('header-logo').classList.remove('hidden');
+                        document.getElementById('p-logo').src = LOGO_URL;
+                        document.getElementById('p-logo').classList.remove('hidden');
+                    }
+                    
+                    renderMenu();
+                    enableLoginBtn();
+                    isCached = true;
+                } catch(e) {}
+            }
+
+            if (!isCached) {
+                container.innerHTML = `
+                    <div class="text-center py-16 flex flex-col items-center justify-center">
+                        <svg class="animate-spin h-10 w-10 text-brand mx-auto mb-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <p class="text-gray-800 font-black tracking-widest uppercase text-sm animate-pulse">Syncing Database...</p>
+                    </div>`;
+            }
+
+            fetch(`${GOOGLE_SCRIPT_URL}?action=getMenu`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        menuData = data.menu;
+                        if(data.config) {
+                            OWNER_PIN = data.config.ownerPin || OWNER_PIN;
+                            UPI_ID = data.config.upiId || UPI_ID;
+                            PAYEE_NAME = data.config.payeeName || PAYEE_NAME;
+                            STAFF_USER = data.config.staffUser || STAFF_USER;
+                            STAFF_PASS = data.config.staffPass || STAFF_PASS;
+                            if(data.config.storeName) STORE_NAME = data.config.storeName;
+                            if(data.config.storeAddress) STORE_ADDRESS = data.config.storeAddress;
+                            if(data.config.gstin) GSTIN = data.config.gstin;
+                            if(data.config.regdNo) REGD_NO = data.config.regdNo;
+                            if(data.config.bankDetails) BANK_DETAILS = data.config.bankDetails;
+                            LOGO_URL = data.config.logoUrl || "";
+                        }
+
+                        if (LOGO_URL) {
+                            document.getElementById('header-logo').src = LOGO_URL;
+                            document.getElementById('header-logo').classList.remove('hidden');
+                            document.getElementById('p-logo').src = LOGO_URL;
+                            document.getElementById('p-logo').classList.remove('hidden');
+                        }
+                        
+                        localStorage.setItem('gd_menu', JSON.stringify(menuData));
+                        localStorage.setItem('gd_config', JSON.stringify(data.config || {}));
+                        
+                        renderMenu();
+                        document.getElementById('header-store-name').innerText = STORE_NAME;
+                        enableLoginBtn();
+                    }
+                })
+                .catch(err => {
+                    if (!isCached) {
+                        document.getElementById('login-status-text').innerText = "Network Error. Please refresh.";
+                        document.getElementById('login-status-text').classList.replace('text-gray-500', 'text-red-600');
+                    }
+                });
+        }
+
+        function enableLoginBtn() {
+            document.getElementById('login-status-text').innerText = "Database Synced. Ready to Login.";
+            document.getElementById('login-status-text').classList.replace('text-gray-500', 'text-green-600');
+            const loginBtn = document.getElementById('login-btn');
+            loginBtn.disabled = false;
+            loginBtn.innerText = "Login to POS";
+            loginBtn.classList.replace('bg-gray-300', 'bg-brand');
+            loginBtn.classList.replace('cursor-not-allowed', 'hover:bg-brand-dark');
+        }
 
         function checkLogin() {
             const user = document.getElementById('login-user').value.trim();
@@ -477,25 +568,6 @@
             }
         }
 
-            if(user === STAFF_USER && pass === STAFF_PASS) {
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('customer-view').classList.remove('hidden');
-                // Set default month in search modal to current month
-                document.getElementById('s-order-month').value = `${currentYear}-${currentMonth}`;
-            } else {
-                err.innerText = "Invalid credentials";
-                err.style.opacity = '1';
-                setTimeout(() => err.style.opacity = '0', 2000);
-            }
-        }
-
-        function calculateBalance() {
-            const { total } = getCartTotal();
-            let advance = parseFloat(document.getElementById('advance-payment').value) || 0;
-            if (advance > total) { advance = total; document.getElementById('advance-payment').value = total; }
-            let balance = total - advance;
-            document.getElementById('balance-due').innerText = `₹ ${balance.toFixed(2)}`;
-        }
         function addCustomItem() {
             const name = document.getElementById('custom-name').value.trim();
             const price = parseFloat(document.getElementById('custom-price').value);
@@ -515,124 +587,14 @@
             updateUI();
             showToast("Custom item added!");
         }
-        
-        let menuData = [];
-        let cart = {};
-        
-        let currentYear = "";
-        let currentMonth = "";
-        let currentDay = "";
-        
-        // Setup Date
-        const today = new Date();
-        currentYear = today.getFullYear();
-        currentMonth = ("0" + (today.getMonth() + 1)).slice(-2);
-        currentDay = ("0" + today.getDate()).slice(-2);
-
-        // Fetch Live Inventory/Categories
-        function fetchMenu() {
-            const container = document.getElementById('menu-container');
-            
-            // Try loading from cache first
-            const cachedMenu = localStorage.getItem('gd_menu');
-            const cachedConfig = localStorage.getItem('gd_config');
-            let isCached = false;
-            
-            if (cachedMenu) {
-                try {
-                    menuData = JSON.parse(cachedMenu);
-                    if (cachedConfig) {
-                        const config = JSON.parse(cachedConfig);
-                        OWNER_PIN = config.ownerPin || OWNER_PIN;
-                        UPI_ID = config.upiId || UPI_ID;
-                        PAYEE_NAME = config.payeeName || PAYEE_NAME;
-                        STORE_NAME = config.storeName || STORE_NAME;
-                        STORE_ADDRESS = config.storeAddress || STORE_ADDRESS;
-                        REGD_NO = config.regdNo || REGD_NO;
-                        GSTIN = config.gstin || GSTIN;
-                        BANK_DETAILS = config.bankDetails || BANK_DETAILS;
-                        STAFF_USER = config.staffUser || STAFF_USER;
-                        STAFF_PASS = config.staffPass || STAFF_PASS;
-                    }
-                    renderMenu();
-                    isCached = true;
-                } catch(e) {}
-            }
-
-            if (!isCached) {
-                container.innerHTML = `
-                    <div class="text-center py-16 flex flex-col items-center justify-center">
-                        <svg class="animate-spin h-10 w-10 text-brand mx-auto mb-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                        <p class="text-gray-800 font-black tracking-widest uppercase text-sm animate-pulse">Syncing Database...</p>
-                    </div>`;
-            }
-
-            // Silent Background Fetch
-            fetch(`${GOOGLE_SCRIPT_URL}?action=getMenu`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        menuData = data.menu;
-                        if(data.config) {
-                            OWNER_PIN = data.config.ownerPin || OWNER_PIN;
-                            UPI_ID = data.config.upiId || UPI_ID;
-                            PAYEE_NAME = data.config.payeeName || PAYEE_NAME;
-                            STAFF_USER = data.config.staffUser || STAFF_USER;
-                            STAFF_PASS = data.config.staffPass || STAFF_PASS;
-                            if(data.config.storeName) STORE_NAME = data.config.storeName;
-                            if(data.config.storeAddress) STORE_ADDRESS = data.config.storeAddress;
-                            if(data.config.gstin) GSTIN = data.config.gstin;
-                            if(data.config.regdNo) REGD_NO = data.config.regdNo;
-                            if(data.config.bankDetails) BANK_DETAILS = data.config.bankDetails;
-                        }
-
-                        LOGO_URL = data.config.logoUrl || "";
-                        if (LOGO_URL) {
-                            document.getElementById('header-logo').src = LOGO_URL;
-                            document.getElementById('header-logo').classList.remove('hidden');
-                            document.getElementById('p-logo').src = LOGO_URL;
-                            document.getElementById('p-logo').classList.remove('hidden');
-                        }
-                        
-                        localStorage.setItem('gd_menu', JSON.stringify(menuData));
-                        localStorage.setItem('gd_config', JSON.stringify(data.config || {}));
-                        
-                        renderMenu();
-                        
-                        // Update UI Texts
-                        document.getElementById('header-store-name').innerText = STORE_NAME;
-                    } else if (!isCached) {
-                        mockDataFallback();
-                    }
-                })
-                .catch(err => {
-                    if (!isCached) mockDataFallback();
-                });
-        }
-
-        function mockDataFallback() {
-            menuData = [
-                {
-                    category: "Upper",
-                    items: [
-                        { id: "u1", name: "Formal Shirt", price: 750 },
-                        { id: "u2", name: "Kurta", price: 1200 },
-                        { id: "u3", name: "Blazer / Coat", price: 3500 }
-                    ]
-                }
-            ];
-            renderMenu();
-        }
 
         function toggleCategory(catId) {
             const el = document.getElementById(catId);
             const icon = document.getElementById(catId + '-icon');
             if (el.classList.contains('hidden')) {
-                el.classList.remove('hidden');
-                icon.style.transform = 'rotate(180deg)';
+                el.classList.remove('hidden'); icon.style.transform = 'rotate(180deg)';
             } else {
-                el.classList.add('hidden');
-                icon.style.transform = 'rotate(0deg)';
+                el.classList.add('hidden'); icon.style.transform = 'rotate(0deg)';
             }
         }
 
@@ -641,15 +603,13 @@
             let html = '';
             menuData.forEach((section, secIndex) => {
                 const catId = `cat-${secIndex}`;
-                const isOpen = true; 
-                
                 html += `
                 <section class="mb-6 category-section bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <button onclick="toggleCategory('${catId}')" class="w-full px-5 py-4 flex justify-between items-center bg-gray-50 hover:bg-gray-100 transition-colors focus:outline-none">
                         <span class="font-bold text-xl text-gray-900">${section.category}</span>
-                        <svg id="${catId}-icon" class="w-5 h-5 text-brand transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        <svg id="${catId}-icon" class="w-5 h-5 text-brand transition-transform duration-300 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
-                    <div id="${catId}" class="cat-items-container ${isOpen ? '' : 'hidden'} p-4 grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50/50">`;
+                    <div id="${catId}" class="cat-items-container p-4 grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50/50">`;
                 
                 section.items.forEach(item => {
                     html += `
@@ -658,12 +618,10 @@
                                 <h3 class="font-semibold text-gray-900 leading-tight mb-1">${item.name}</h3>
                                 <div class="font-bold text-brand">₹ ${item.price}</div>
                             </div>
-                            
                             <button onclick="incrementQuantity('${item.id}')" class="h-10 w-12 bg-brand/10 hover:bg-brand text-brand hover:text-white transition-colors rounded-lg flex items-center justify-center relative shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                                 <span id="badge-${item.id}" class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full hidden shadow-sm">0</span>
                             </button>
-                            
                         </div>`;
                 });
                 html += `</div></section>`;
@@ -689,7 +647,6 @@
             });
         }
 
-        // Increment from the "+" button directly
         function incrementQuantity(itemId) {
             if (cart[itemId]) {
                 cart[itemId].quantity += 1;
@@ -702,19 +659,6 @@
             showToast("Item added to cart");
         }
 
-        function incrementQuantity(itemId) {
-            if (cart[itemId]) {
-                cart[itemId].quantity += 1;
-            } else {
-                let itemData = null;
-                menuData.forEach(cat => { const found = cat.items.find(i => i.id === itemId); if(found) itemData = found; });
-                if (itemData) cart[itemId] = { ...itemData, quantity: 1 };
-            }
-            updateUI();
-            showToast("Item added to cart");
-        }
-
-        // Setting absolute values from typing inside the Cart View
         function setQuantity(itemId, val) {
             let num = parseInt(val) || 0;
             if(num < 0) num = 0;
@@ -737,8 +681,7 @@
         }
 
         function updateUI() {
-            // Update Badges on Main Menu Buttons
-           menuData.forEach(cat => {
+            menuData.forEach(cat => {
                 cat.items.forEach(item => {
                     const badge = document.getElementById(`badge-${item.id}`);
                     if (badge) {
@@ -778,16 +721,23 @@
                                 <div class="font-medium text-gray-900">${item.name}</div>
                                 <div class="text-sm text-gray-500 mt-1">₹${item.price} x ${item.quantity} = ₹${item.price * item.quantity}</div>
                             </div>
-                            <button onclick="incrementQuantity('${item.id}')" class="h-10 w-12 bg-brand/10 hover:bg-brand text-brand hover:text-white transition-colors rounded-lg flex items-center justify-center relative shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                                <span id="badge-${item.id}" class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full hidden shadow-sm">0</span>
-                            </button>
+                            <div class="flex items-center bg-gray-100 rounded-lg h-9 w-20 overflow-hidden border border-gray-200 shrink-0">
+                                <input type="number" value="${item.quantity}" min="0" onchange="setQuantity('${item.id}', this.value)" class="w-full h-full text-center font-bold text-gray-900 bg-transparent outline-none">
                             </div>
                         </div>`;
                 });
             }
             container.innerHTML = html;
             document.getElementById('cart-modal-total').innerText = `₹ ${total}`;
+            calculateBalance();
+        }
+
+        function calculateBalance() {
+            const { total } = getCartTotal();
+            let advance = parseFloat(document.getElementById('advance-payment').value) || 0;
+            if (advance > total) { advance = total; document.getElementById('advance-payment').value = total; }
+            let balance = total - advance;
+            document.getElementById('balance-due').innerText = `₹ ${balance.toFixed(2)}`;
         }
 
         function toggleCartModal() {
@@ -799,29 +749,25 @@
             } else {
                 modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = '';
                 if (document.getElementById('staff-confirm-btn').style.display === 'none') {
-                    startNewOrder(); // Reset if just checked out
+                    startNewOrder();
                 }
             }
         }
 
         function showToast(message) {
             const toast = document.getElementById('toast');
-            toast.innerText = message;
-            toast.style.opacity = '1';
+            toast.innerText = message; toast.style.opacity = '1';
             setTimeout(() => { toast.style.opacity = '0'; }, 3000);
         }
 
         function startNewOrder() {
             cart = {};
-            document.getElementById('customer-name').value = "";
-            document.getElementById('customer-address').value = "";
-            document.getElementById('customer-mobile').value = "";
-            document.getElementById('customer-email').value = "";
+            document.getElementById('customer-name').value = ""; document.getElementById('customer-mobile').value = "";
+            document.getElementById('customer-address').value = ""; document.getElementById('customer-email').value = "";
+            document.getElementById('advance-payment').value = "";
             
             const btn = document.getElementById('staff-confirm-btn');
-            btn.style.display = 'block';
-            btn.innerText = "Generate Invoice & Save";
-            btn.disabled = false;
+            btn.style.display = 'block'; btn.innerText = "Generate Invoice & Save"; btn.disabled = false;
             
             document.getElementById('post-confirm-actions').classList.add('hidden');
             document.getElementById('post-confirm-actions').classList.remove('flex');
@@ -840,13 +786,10 @@
             if (total === 0) { showToast("Cart is empty."); return; }
 
             let finalItemsText = "";
-            Object.values(cart).forEach(item => { 
-                finalItemsText += `${item.quantity}x ${item.name} = ₹${item.price * item.quantity}\n`; 
-            });
+            Object.values(cart).forEach(item => { finalItemsText += `${item.quantity}x ${item.name} = ₹${item.price * item.quantity}\n`; });
 
             const btn = document.getElementById('staff-confirm-btn');
-            btn.innerText = "Saving to Database...";
-            btn.disabled = true;
+            btn.innerText = "Saving to Database..."; btn.disabled = true;
 
             const advance = parseFloat(document.getElementById('advance-payment').value) || 0;
             const balance = total - advance;
@@ -860,44 +803,26 @@
             formData.append('email', cEmail);
             formData.append('items', finalItemsText.trim());
             formData.append('total', total);
-            formData.append('advance', advance); // NEW
-            formData.append('balance', balance); // NEW
+            formData.append('advance', advance); 
+            formData.append('balance', balance); 
             formData.append('table', cMobile || 'Walk-in'); 
 
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
-            .then(response => response.text())
+            .then(res => res.text())
             .then(result => {
-                if (result === "Duplicate") {
-                    showToast("Order already saved.");
-                    return; 
-                }
-
+                if (result === "Duplicate") { showToast("Order already saved."); return; }
                 if (result.startsWith("Success|")) {
                     const officialOrderId = result.split("|")[1]; 
                     btn.style.display = 'none';
 
-                    // Prepare Print Section Data
-                    prepareA4PrintLayout({
-                        orderId: officialOrderId,
-                        date: new Date(),
-                        customer: cName,
-                        mobile: cMobile,
-                        address: cAddress,
-                        items: Object.values(cart),
-                        total: total,
-                        advance: advance,
-                        balance: balance
-                    });
+                    prepareA4PrintLayout({ orderId: officialOrderId, date: new Date(), customer: cName, mobile: cMobile, address: cAddress, items: Object.values(cart), total: total, advance: advance, balance: balance });
 
                     document.getElementById('cart-items-container').classList.add('hidden');
                     const actionsDiv = document.getElementById('post-confirm-actions');
-                    actionsDiv.classList.remove('hidden');
-                    actionsDiv.classList.add('flex');
+                    actionsDiv.classList.remove('hidden'); actionsDiv.classList.add('flex');
 
-                    let actionHtml = `
-                        <div class="bg-green-50 border border-green-200 text-green-800 p-4 rounded-xl text-center font-bold mb-1 shadow-sm">
-                            ✅ Order Saved: ${officialOrderId}
-                        </div>
+                    actionsDiv.innerHTML = `
+                        <div class="bg-green-50 border border-green-200 text-green-800 p-4 rounded-xl text-center font-bold mb-1 shadow-sm">✅ Order Saved: ${officialOrderId}</div>
                         <button onclick="printA4Invoice()" class="w-full bg-brand hover:bg-brand-dark text-white py-4 rounded-xl font-bold text-lg shadow-md flex justify-center items-center gap-2 transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                             Print PDF Invoice
@@ -909,40 +834,20 @@
                             Start New Order
                         </button>
                     `;
-                    actionsDiv.innerHTML = actionHtml;
-
                 } else { throw new Error(result); }
             }).catch(e => {
                 showToast("Offline Mode / Error Saving. Order Generated Locally.");
-                // Generate a local ID and allow printing anyway
                 const localId = `GD-${currentYear}-${currentMonth}-${currentDay}-L${Math.floor(Math.random()*1000)}`;
                 btn.style.display = 'none';
-                
-                prepareA4PrintLayout({
-                    orderId: localId,
-                    date: new Date(),
-                    customer: cName,
-                    mobile: cMobile,
-                    address: cAddress,
-                    items: Object.values(cart),
-                    total: total,
-                    advance: advance,
-                    balance: balance
-                });
+                prepareA4PrintLayout({ orderId: localId, date: new Date(), customer: cName, mobile: cMobile, address: cAddress, items: Object.values(cart), total: total, advance: advance, balance: balance });
 
                 document.getElementById('cart-items-container').classList.add('hidden');
                 const actionsDiv = document.getElementById('post-confirm-actions');
                 actionsDiv.classList.remove('hidden'); actionsDiv.classList.add('flex');
                 actionsDiv.innerHTML = `
-                    <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 p-4 rounded-xl text-center font-bold mb-1 shadow-sm">
-                        ⚠️ Local Order: ${localId}
-                    </div>
-                    <button onclick="printA4Invoice()" class="w-full bg-brand hover:bg-brand-dark text-white py-4 rounded-xl font-bold text-lg shadow-md flex justify-center items-center gap-2">
-                        Print PDF Invoice
-                    </button>
-                    <button onclick="startNewOrder()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-900 py-4 rounded-xl font-bold text-lg mt-2">
-                        Start New Order
-                    </button>
+                    <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 p-4 rounded-xl text-center font-bold mb-1 shadow-sm">⚠️ Local Order: ${localId}</div>
+                    <button onclick="printA4Invoice()" class="w-full bg-brand hover:bg-brand-dark text-white py-4 rounded-xl font-bold text-lg shadow-md flex justify-center items-center gap-2">Print PDF Invoice</button>
+                    <button onclick="startNewOrder()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-900 py-4 rounded-xl font-bold text-lg mt-2">Start New Order</button>
                 `;
             });
         }
@@ -1035,11 +940,7 @@
                 if(line.trim() === '') return;
                 const match = line.match(/(\d+)x\s+(.+)\s+=\s+₹(\d+)/);
                 if(match) {
-                    items.push({
-                        quantity: parseInt(match[1]),
-                        name: match[2].trim(),
-                        price: parseInt(match[3]) / parseInt(match[1])
-                    });
+                    items.push({ quantity: parseInt(match[1]), name: match[2].trim(), price: parseInt(match[3]) / parseInt(match[1]) });
                 } else {
                     items.push({ quantity: 1, name: line, price: 0 }); // Fallback
                 }
@@ -1082,7 +983,7 @@
                         date: new Date(data.date),
                         customer: data.name,
                         mobile: data.table && data.table !== 'Walk-in' ? data.table : '',
-                        address: '', // If address is not stored in DB columns, it will remain blank on re-print
+                        address: '', 
                         items: parseItemsString(data.items),
                         total: rawTotal,
                         advance: parseFloat(data.advance) || 0,
@@ -1119,7 +1020,10 @@
             if(!currentSearchedOrder) return;
             const data = currentSearchedOrder;
             const rawTotal = parseFloat(data.total || "0");
-            let waMessage = `*${STORE_NAME}*\n------------------------\n*Order ID:* ${data.orderId}\n*Date:* ${new Date(data.date).toLocaleDateString()}\n*Customer:* ${data.name}\n\n*Items:*\n${data.items}\n------------------------\n*Grand Total: ₹${rawTotal.toFixed(2)}*\n\nThank you for shopping with us!`;
+            const advance = parseFloat(data.advance || "0");
+            const bal = rawTotal - advance;
+            
+            let waMessage = `*${STORE_NAME}*\n------------------------\n*Order ID:* ${data.orderId}\n*Date:* ${new Date(data.date).toLocaleDateString()}\n*Customer:* ${data.name}\n\n*Items:*\n${data.items}\n------------------------\n*Grand Total: ₹${rawTotal.toFixed(2)}*\n*Advance Paid: ₹${advance.toFixed(2)}*\n*Balance Due: ₹${bal.toFixed(2)}*\n\nThank you for shopping with us!`;
             
             const number = (data.table && data.table !== 'Walk-in') ? data.table : '';
             const link = `https://api.whatsapp.com/send?phone=91${number}&text=${encodeURIComponent(waMessage)}`;
@@ -1157,14 +1061,14 @@
             document.getElementById('refresh-btn').classList.add('animate-spin');
             document.getElementById('today-income').innerText = "Loading...";
             document.getElementById('month-income').innerText = "Loading...";
-            loadDashboardStats(`GD-${currentYear}-${currentMonth}-${currentDay}`, 'today');
-            loadDashboardStats(`GD-${currentYear}-${currentMonth}`, 'month');
+            loadDashboardStats(`GD/${currentYear}/${currentMonth}/${currentDay}`, 'today');
+            loadDashboardStats(`GD/${currentYear}/${currentMonth}`, 'month');
         }
 
         function loadDashboardStats(filterPrefix, target) {
             const timestamp = new Date().getTime();
             activeLoadCount++;
-            fetch(`${GOOGLE_SCRIPT_URL}?action=report&filter=${filterPrefix}&t=${timestamp}`)
+            fetch(`${GOOGLE_SCRIPT_URL}?action=report&filter=${encodeURIComponent(filterPrefix)}&t=${timestamp}`)
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById(`${target}-income`).innerText = `₹${data.income.toFixed(2)}`;
