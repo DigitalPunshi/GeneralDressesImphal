@@ -1046,7 +1046,7 @@
         function unlockAnalytics() {
             const pinInput = document.getElementById('owner-pin-input');
             const errorMsg = document.getElementById('pin-error');
-            if (pinInput.value.trim() === OWNER_PIN) {
+            if (pinInput.value.trim() === String(OWNER_PIN)) {
                 document.getElementById('analytics-overlay').style.opacity = '0';
                 setTimeout(() => { document.getElementById('analytics-overlay').style.display = 'none'; }, 500);
                 refreshQuickStats();
