@@ -560,6 +560,14 @@
                             if(data.config.regdNo) REGD_NO = data.config.regdNo;
                             if(data.config.bankDetails) BANK_DETAILS = data.config.bankDetails;
                         }
+
+                        LOGO_URL = data.config.logoUrl || "";
+                        if (LOGO_URL) {
+                            document.getElementById('header-logo').src = LOGO_URL;
+                            document.getElementById('header-logo').classList.remove('hidden');
+                            document.getElementById('p-logo').src = LOGO_URL;
+                            document.getElementById('p-logo').classList.remove('hidden');
+                        }
                         
                         localStorage.setItem('gd_menu', JSON.stringify(menuData));
                         localStorage.setItem('gd_config', JSON.stringify(data.config || {}));
