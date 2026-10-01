@@ -208,8 +208,12 @@
                 </div>
                 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Order ID</label>
-                    <input type="text" id="s-order-id" placeholder="e.g. GD-2026-10-01-005" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl outline-none focus:border-brand font-mono text-lg" onkeypress="if(event.key === 'Enter') fetchOrderDetails()">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Select Month & Enter Last 4 Digits</label>
+                    <div class="flex gap-2">
+                        <input type="month" id="s-order-month" class="w-3/5 px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl outline-none focus:border-brand font-mono text-base">
+                        <input type="text" id="s-order-seq" placeholder="e.g. 0001" maxlength="4" class="w-2/5 px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl outline-none focus:border-brand font-mono text-lg text-center" onkeypress="if(event.key === 'Enter') fetchOrderDetails()">
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1">Format: GD/YYYY/MM/XXXX</p>
                 </div>
 
                 <button id="s-fetch-btn" onclick="fetchOrderDetails()" class="w-full mt-2 bg-brand hover:bg-brand-dark text-white py-3 rounded-xl font-bold shadow-md transition-colors flex justify-center items-center gap-2">Find Order</button>
