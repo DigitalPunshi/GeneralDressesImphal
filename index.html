@@ -15,7 +15,6 @@
                 extend: {
                     fontFamily: { sans: ['Outfit', 'sans-serif'], },
                     colors: {
-                        // Brand colors adapted for General Dresses (Navy Blue and Gold accents)
                         brand: { light: '#f0f4ff', DEFAULT: '#000080', dark: '#000066', accent: '#d4af37' }
                     },
                     animation: { 'slide-up': 'slideUp 0.3s ease-out forwards', },
@@ -81,7 +80,6 @@
         <!-- ========================================== -->
         <!-- POS VIEW (Menu & Cart)                     -->
         <!-- ========================================== -->
-        <!-- Added 'hidden' class here initially -->
         <div id="customer-view" class="hidden">
             <header class="bg-white px-6 py-5 text-center shadow-sm sticky top-0 z-40 relative">
                 <!-- Hamburger Menu Top Left -->
@@ -368,7 +366,7 @@
                     <img id="p-logo" src="" class="hidden" style="height: 60px; width: 60px; object-fit: contain;">
                     <div>
                         <h1 id="p-store-name" style="margin: 0; font-size: 28px; font-weight: bold; color: #000080; font-family: sans-serif;">GENERAL DRESSES</h1>
-                        <div id="p-store-address" style="font-size: 12px; margin-top: 5px;">Uripok Panchai Maning, Kangchup Road, Imphal-795001, Manipur</div>
+                        <div id="p-store-address" style="font-size: 12px; margin-top: 5px;"></div>
                     </div>
                 </div>
                 <div style="text-align: right; font-size: 12px;">
@@ -440,29 +438,40 @@
 
     <script>
         // The script URL handles storage for products, orders, and configuration.
-        // It should return JSON based on action params.
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyc-1d91l5ZidJg-L2or6bJdkwW7ohB2jqu95J-rHPCe8a3uD2gJe2I2dJtxSbKqqUi/exec";
 
-        // Dynamic config (from Sheet or Fallbacks based on CIPET.pdf)
-        let STORE_NAME = "GENERAL DRESSES";
-        let STORE_ADDRESS = "Uripok Panchai Maning, Kangchup Road\nImphal-795001, Manipur";
-        let REGD_NO = "12/01/632/PMT/SSF";
-        let GSTIN = "14BALPD0452MIZU";
-        let BANK_DETAILS = "Payee Name: M/S General Dresses Account\nNo.: 31859934262\nIFSC: SBIN0000092";
+        // Emptied Config Variables - strictly fetched from backend sheet to keep info private
+        let STORE_NAME = "General Dresses";
+        let STORE_ADDRESS = "";
+        let REGD_NO = "";
+        let GSTIN = "";
+        let BANK_DETAILS = "";
         let LOGO_URL = "";
-        let STAFF_USER = "admin";
-        let STAFF_PASS = "1234"; 
+        let STAFF_USER = "";
+        let STAFF_PASS = ""; 
+        let OWNER_PIN = "";
+        let UPI_ID = "";
+        let PAYEE_NAME = "";
 
         function checkLogin() {
             const user = document.getElementById('login-user').value.trim();
             const pass = document.getElementById('login-pass').value.trim();
             const err = document.getElementById('login-error');
+            
+            if(!STAFF_USER) {
+                err.innerText = "Syncing from database... Please wait.";
+                err.style.opacity = '1';
+                setTimeout(() => err.style.opacity = '0', 2000);
+                return;
+            }
+
             if(user === STAFF_USER && pass === STAFF_PASS) {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('customer-view').classList.remove('hidden');
                 // Set default month in search modal to current month
                 document.getElementById('s-order-month').value = `${currentYear}-${currentMonth}`;
             } else {
+                err.innerText = "Invalid credentials";
                 err.style.opacity = '1';
                 setTimeout(() => err.style.opacity = '0', 2000);
             }
@@ -524,11 +533,14 @@
                         const config = JSON.parse(cachedConfig);
                         OWNER_PIN = config.ownerPin || OWNER_PIN;
                         UPI_ID = config.upiId || UPI_ID;
+                        PAYEE_NAME = config.payeeName || PAYEE_NAME;
                         STORE_NAME = config.storeName || STORE_NAME;
                         STORE_ADDRESS = config.storeAddress || STORE_ADDRESS;
                         REGD_NO = config.regdNo || REGD_NO;
                         GSTIN = config.gstin || GSTIN;
                         BANK_DETAILS = config.bankDetails || BANK_DETAILS;
+                        STAFF_USER = config.staffUser || STAFF_USER;
+                        STAFF_PASS = config.staffPass || STAFF_PASS;
                     }
                     renderMenu();
                     isCached = true;
@@ -548,12 +560,13 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        // Incase it's the old food structure, we map it mentally to clothes.
-                        // Format expected: [{category: "Upper", items: [{id:"1", name:"Shirt", price: 750}, ...]}, ...]
                         menuData = data.menu;
                         if(data.config) {
                             OWNER_PIN = data.config.ownerPin || OWNER_PIN;
                             UPI_ID = data.config.upiId || UPI_ID;
+                            PAYEE_NAME = data.config.payeeName || PAYEE_NAME;
+                            STAFF_USER = data.config.staffUser || STAFF_USER;
+                            STAFF_PASS = data.config.staffPass || STAFF_PASS;
                             if(data.config.storeName) STORE_NAME = data.config.storeName;
                             if(data.config.storeAddress) STORE_ADDRESS = data.config.storeAddress;
                             if(data.config.gstin) GSTIN = data.config.gstin;
@@ -577,7 +590,6 @@
                         // Update UI Texts
                         document.getElementById('header-store-name').innerText = STORE_NAME;
                     } else if (!isCached) {
-                        // Fallback mocked data for testing UI without backend
                         mockDataFallback();
                     }
                 })
@@ -594,20 +606,6 @@
                         { id: "u1", name: "Formal Shirt", price: 750 },
                         { id: "u2", name: "Kurta", price: 1200 },
                         { id: "u3", name: "Blazer / Coat", price: 3500 }
-                    ]
-                },
-                {
-                    category: "Bottom",
-                    items: [
-                        { id: "b1", name: "Formal Pant", price: 950 },
-                        { id: "b2", name: "Trousers", price: 1100 }
-                    ]
-                },
-                {
-                    category: "Suits",
-                    items: [
-                        { id: "s1", name: "2-Piece Suit", price: 5500 },
-                        { id: "s2", name: "3-Piece Suit", price: 7500 }
                     ]
                 }
             ];
@@ -648,9 +646,12 @@
                                 <h3 class="font-semibold text-gray-900 leading-tight mb-1">${item.name}</h3>
                                 <div class="font-bold text-brand">₹ ${item.price}</div>
                             </div>
-                            <div class="flex items-center bg-gray-100 rounded-lg h-10 w-20 overflow-hidden border border-gray-200 shrink-0">
-                                <input type="number" id="qty-${item.id}" value="0" min="0" onchange="setQuantity('${item.id}', this.value)" class="w-full h-full text-center font-bold text-gray-900 bg-transparent outline-none">
-                            </div>
+                            
+                            <button onclick="incrementQuantity('${item.id}')" class="h-10 w-12 bg-brand/10 hover:bg-brand text-brand hover:text-white transition-colors rounded-lg flex items-center justify-center relative shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                                <span id="badge-${item.id}" class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full hidden shadow-sm">0</span>
+                            </button>
+                            
                         </div>`;
                 });
                 html += `</div></section>`;
@@ -676,6 +677,20 @@
             });
         }
 
+        // Increment from the "+" button directly
+        function incrementQuantity(itemId) {
+            if (cart[itemId]) {
+                cart[itemId].quantity += 1;
+            } else {
+                let itemData = null;
+                menuData.forEach(cat => { const found = cat.items.find(i => i.id === itemId); if(found) itemData = found; });
+                if (itemData) cart[itemId] = { ...itemData, quantity: 1 };
+            }
+            updateUI();
+            showToast("Item added to cart");
+        }
+
+        // Setting absolute values from typing inside the Cart View
         function setQuantity(itemId, val) {
             let num = parseInt(val) || 0;
             if(num < 0) num = 0;
@@ -698,12 +713,21 @@
         }
 
         function updateUI() {
+            // Update Badges on Main Menu Buttons
             menuData.forEach(cat => {
                 cat.items.forEach(item => {
-                    const qtyElement = document.getElementById(`qty-${item.id}`);
-                    if(qtyElement) qtyElement.innerText = cart[item.id] ? cart[item.id].quantity : '0';
+                    const badge = document.getElementById(`badge-${item.id}`);
+                    if (badge) {
+                        if (cart[item.id] && cart[item.id].quantity > 0) {
+                            badge.innerText = cart[item.id].quantity;
+                            badge.classList.remove('hidden');
+                        } else {
+                            badge.classList.add('hidden');
+                        }
+                    }
                 });
             });
+
             const { total, count } = getCartTotal();
             const bottomBar = document.getElementById('bottom-cart-bar');
             document.getElementById('cart-total-bar').innerText = `₹ ${total}`;
@@ -876,7 +900,9 @@
                     mobile: cMobile,
                     address: cAddress,
                     items: Object.values(cart),
-                    total: total
+                    total: total,
+                    advance: advance,
+                    balance: balance
                 });
 
                 document.getElementById('cart-items-container').classList.add('hidden');
@@ -921,7 +947,7 @@
             document.getElementById('p-bank-details').innerText = BANK_DETAILS;
             
             document.getElementById('p-sign-name').innerText = STORE_NAME;
-            document.getElementById('p-sign-address').innerText = STORE_ADDRESS.split(',')[0];
+            document.getElementById('p-sign-address').innerText = STORE_ADDRESS.split(',')[0] || '';
 
             document.getElementById('p-order').innerText = data.orderId;
             document.getElementById('p-date').innerText = new Date(data.date).toLocaleDateString('en-IN');
@@ -944,7 +970,6 @@
                     </tr>
                 `;
             });
-            document.getElementById('p-total').innerText = data.total.toFixed(2);
             document.getElementById('p-total').innerText = data.total.toFixed(2);
             document.getElementById('p-advance').innerText = (data.advance || 0).toFixed(2);
             document.getElementById('p-balance').innerText = (data.balance || 0).toFixed(2);
@@ -970,7 +995,7 @@
             document.getElementById('search-order-modal').classList.remove('hidden');
             document.getElementById('search-order-modal').classList.add('flex');
             document.body.style.overflow = 'hidden';
-            setTimeout(() => { document.getElementById('s-order-id').focus(); }, 100);
+            setTimeout(() => { document.getElementById('s-order-seq').focus(); }, 100);
         }
         function closeSearchOrder() {
             document.getElementById('search-order-modal').classList.add('hidden');
@@ -978,13 +1003,11 @@
             document.body.style.overflow = '';
         }
 
-        // Parse items string from DB into array for printing
         function parseItemsString(itemsStr) {
             const lines = itemsStr.split('\n');
             const items = [];
             lines.forEach(line => {
                 if(line.trim() === '') return;
-                // Example format: 2x Formal Shirt = ₹1500
                 const match = line.match(/(\d+)x\s+(.+)\s+=\s+₹(\d+)/);
                 if(match) {
                     items.push({
@@ -1036,7 +1059,9 @@
                         mobile: data.table && data.table !== 'Walk-in' ? data.table : '',
                         address: '', // If address is not stored in DB columns, it will remain blank on re-print
                         items: parseItemsString(data.items),
-                        total: rawTotal
+                        total: rawTotal,
+                        advance: parseFloat(data.advance) || 0,
+                        balance: parseFloat(data.balance) || 0
                     });
 
                     // Populate UI Preview Box
