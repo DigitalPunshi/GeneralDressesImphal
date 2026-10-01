@@ -56,9 +56,31 @@
     <main class="max-w-md md:max-w-3xl lg:max-w-5xl mx-auto bg-gray-50 min-h-screen shadow-2xl relative pb-24 transition-all duration-300">
         
         <!-- ========================================== -->
+        <!-- LOGIN SCREEN                               -->
+        <!-- ========================================== -->
+        <div id="login-screen" class="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-6 absolute inset-0 z-50">
+            <div class="bg-white rounded-3xl shadow-xl w-full max-w-sm p-8 text-center border border-gray-100">
+                <div class="w-16 h-16 bg-brand-light text-brand rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                </div>
+                <h2 class="text-2xl font-black text-brand mb-1">Staff Login</h2>
+                <p class="text-xs text-gray-500 mb-6">General Dresses POS System</p>
+                
+                <input type="text" id="login-user" placeholder="Username" class="w-full px-4 py-3 mb-3 border border-gray-300 rounded-xl focus:ring-brand focus:border-brand outline-none text-left bg-gray-50">
+                <input type="password" id="login-pass" placeholder="Password" class="w-full px-4 py-3 mb-6 border border-gray-300 rounded-xl focus:ring-brand focus:border-brand outline-none text-left bg-gray-50" onkeypress="if(event.key === 'Enter') checkLogin()">
+                
+                <button onclick="checkLogin()" class="w-full bg-brand hover:bg-brand-dark text-white py-4 rounded-xl font-bold text-lg shadow-md transition-colors">
+                    Login to POS
+                </button>
+                <p id="login-error" class="text-red-600 text-sm font-bold mt-4 opacity-0 transition-opacity">Invalid credentials</p>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
         <!-- POS VIEW (Menu & Cart)                     -->
         <!-- ========================================== -->
-        <div id="customer-view">
+        <!-- Added 'hidden' class here initially -->
+        <div id="customer-view" class="hidden">
             <header class="bg-white px-6 py-5 text-center shadow-sm sticky top-0 z-40 relative">
                 <!-- Hamburger Menu Top Left -->
                 <button id="hamburger-menu-btn" onclick="toggleHamburgerMenu()" class="absolute left-6 top-6 text-brand hover:text-brand-dark transition-colors p-1">
