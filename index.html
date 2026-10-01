@@ -625,16 +625,18 @@
             });
         }
 
-        function updateQuantity(itemId, change) {
-            let itemData = null;
-            menuData.forEach(cat => { 
-                const found = cat.items.find(i => i.id === itemId); 
-                if(found) itemData = found; 
-            });
-            if (!itemData) return;
-            if (!cart[itemId]) cart[itemId] = { ...itemData, quantity: 0 };
-            const newQty = cart[itemId].quantity + change;
-            if (newQty > 0) { cart[itemId].quantity = newQty; } else { delete cart[itemId]; }
+        function setQuantity(itemId, val) {
+            let num = parseInt(val) || 0;
+            if(num < 0) num = 0;
+
+            if (cart[itemId]) {
+                cart[itemId].quantity = num;
+                if(num === 0) delete cart[itemId];
+            } else if (num > 0) {
+                let itemData = null;
+                menuData.forEach(cat => { const found = cat.items.find(i => i.id === itemId); if(found) itemData = found; });
+                if(itemData) cart[itemId] = { ...itemData, quantity: num };
+            }
             updateUI();
         }
 
