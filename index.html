@@ -848,6 +848,23 @@
             });
         }
 
+        function sendNewOrderWhatsApp(orderId, mobile) {
+            if(!mobile) {
+                mobile = prompt("Enter customer mobile number (without +91):", document.getElementById('customer-mobile').value);
+                if(!mobile) return;
+            }
+            const data = currentSearchedOrder || {
+                name: document.getElementById('customer-name').value,
+                items: Object.values(cart).map(i => `${i.quantity}x ${i.name} = ₹${i.price * i.quantity}`).join('\n'),
+                total: getCartTotal().total,
+                advance: parseFloat(document.getElementById('advance-payment').value) || 0
+            };
+            const bal = data.total - data.advance;
+            let waMessage = `*${STORE_NAME}*\n------------------------\n*Order ID:* ${orderId}\n*Date:* ${new Date().toLocaleDateString()}\n*Customer:* ${data.name}\n\n*Items:*\n${data.items}\n------------------------\n*Grand Total: ₹${data.total.toFixed(2)}*\n*Advance Paid: ₹${data.advance.toFixed(2)}*\n*Balance Due: ₹${bal.toFixed(2)}*\n\nThank you for shopping with us!`;
+            
+            window.open(`https://api.whatsapp.com/send?phone=91${mobile}&text=${encodeURIComponent(waMessage)}`, '_blank');
+        }
+
         function prepareA4PrintLayout(data) {
             document.getElementById('p-store-name').innerText = STORE_NAME;
             document.getElementById('p-store-address').innerText = STORE_ADDRESS;
