@@ -597,12 +597,8 @@
                                 <h3 class="font-semibold text-gray-900 leading-tight mb-1">${item.name}</h3>
                                 <div class="font-bold text-brand">₹ ${item.price}</div>
                             </div>
-                            <div class="flex-shrink-0">
-                                <div id="controls-${item.id}" class="flex items-center bg-brand-light border border-brand/20 rounded-lg overflow-hidden h-9 w-24">
-                                    <button onclick="updateQuantity('${item.id}', -1)" class="w-8 h-full flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors font-bold text-lg">-</button>
-                                    <div id="qty-${item.id}" class="flex-1 flex items-center justify-center font-semibold text-gray-900 text-sm">0</div>
-                                    <button onclick="updateQuantity('${item.id}', 1)" class="w-8 h-full flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors font-bold text-lg">+</button>
-                                </div>
+                            <div class="flex items-center bg-gray-100 rounded-lg h-10 w-20 overflow-hidden border border-gray-200 shrink-0">
+                                <input type="number" id="qty-${item.id}" value="0" min="0" onchange="setQuantity('${item.id}', this.value)" class="w-full h-full text-center font-bold text-gray-900 bg-transparent outline-none">
                             </div>
                         </div>`;
                 });
