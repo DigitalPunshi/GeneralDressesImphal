@@ -469,6 +469,25 @@
             let balance = total - advance;
             document.getElementById('balance-due').innerText = `₹ ${balance.toFixed(2)}`;
         }
+        function addCustomItem() {
+            const name = document.getElementById('custom-name').value.trim();
+            const price = parseFloat(document.getElementById('custom-price').value);
+            const qty = parseInt(document.getElementById('custom-qty').value);
+
+            if(!name || isNaN(price) || price < 0 || isNaN(qty) || qty <= 0) {
+                showToast("Enter valid name, price, and quantity."); return;
+            }
+
+            const customId = 'custom_' + Date.now();
+            cart[customId] = { id: customId, name: name + " (Custom)", price: price, quantity: qty };
+
+            document.getElementById('custom-name').value = '';
+            document.getElementById('custom-price').value = '';
+            document.getElementById('custom-qty').value = '1';
+
+            updateUI();
+            showToast("Custom item added!");
+        }
         
         let menuData = [];
         let cart = {};
