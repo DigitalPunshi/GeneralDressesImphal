@@ -751,6 +751,9 @@
             btn.innerText = "Saving to Database...";
             btn.disabled = true;
 
+            const advance = parseFloat(document.getElementById('advance-payment').value) || 0;
+            const balance = total - advance;
+
             const token = Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
             const formData = new URLSearchParams();
             formData.append('token', token);
@@ -760,7 +763,8 @@
             formData.append('email', cEmail);
             formData.append('items', finalItemsText.trim());
             formData.append('total', total);
-            // Reusing 'table' parameter internally in apps script for 'mobile' or tracking if needed
+            formData.append('advance', advance); // NEW
+            formData.append('balance', balance); // NEW
             formData.append('table', cMobile || 'Walk-in'); 
 
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
