@@ -557,7 +557,7 @@
                 return;
             }
 
-            if(user === STAFF_USER && pass === STAFF_PASS) {
+            if(user === String(STAFF_USER) && pass === String(STAFF_PASS)) {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('customer-view').classList.remove('hidden');
                 document.getElementById('s-order-month').value = `${currentYear}-${currentMonth}`;
